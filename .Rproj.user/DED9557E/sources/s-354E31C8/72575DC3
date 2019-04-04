@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1554274042425.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "72575DC3",
+    "lastKnownWriteTime" : 1554274411,
+    "last_content_update" : 1554274411285,
+    "path" : "C:/Users/Miguel/Desktop/clasificacion/transformarRDataPruebas.R",
+    "project_path" : "transformarRDataPruebas.R",
+    "properties" : {
+        "cursorPosition" : "7,32",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
