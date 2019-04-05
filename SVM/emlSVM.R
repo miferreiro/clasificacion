@@ -1,9 +1,9 @@
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 source("transformarRDataPruebas.R")
-emlDF <- read.csv(file = "csvs/outputsyns_spam_ass.csv", header = TRUE, 
+dataEml <- read.csv(file = "csvs/outputsyns_spam_ass.csv", header = TRUE, 
                   sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
-emlDF <- emlDF %>%
+dataEml <- dataEml %>%
   transformColums("X.userName") %>%
   transformColums("hashtag") %>%
   transformColums("URLs") %>%
@@ -12,10 +12,10 @@ emlDF <- emlDF %>%
   transformColums("interjection") 
 
 def.formula <- as.formula("target~.")
-emlDF$language <- as.factor(emlDF$language)
-emlDF$extension <- as.factor(emlDF$extension)
-emlDF$target <- as.factor(emlDF$target)
-emlDF <- dplyr::select(emlDF,
+dataEml$language <- as.factor(dataEml$language)
+dataEml$extension <- as.factor(dataEml$extension)
+dataEml$target <- as.factor(dataEml$target)
+dataEml <- dplyr::select(dataEml,
                       -date,
                       -NERDATE,
                       -NERMONEY,
@@ -29,11 +29,12 @@ emlDF <- dplyr::select(emlDF,
 #EML
 {
   cat("Starting SVM EML...\n")
-  dataEml <- subset(emlDF, extension == "eml")
+  dataEml <- subset(dataEml, extension == "eml")
   indexEml <- caret::createDataPartition(dataEml$target, p = .75, list = FALSE)
+  
   eml.train <- dataEml[indexEml, ]
   eml.test <-  dataEml[-indexEml, ]
-  
+  rm(dataEml)
   eml.svm.rec <- recipes::recipe(formula = def.formula, data = eml.train) %>%
     step_zv(all_predictors()) %>% #remove zero variance
     step_nzv(all_predictors()) %>% #remove near-zero variance
