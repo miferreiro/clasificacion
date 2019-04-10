@@ -1,6 +1,6 @@
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 source("transformarRDataPruebas.R")
-emlDF <- read.csv(file = "csvs/outputsyns_spam_ass.csv", header = TRUE, 
+emlDF <- read.csv(file = "csvs/outputsyns_spamassassin_last.csv", header = TRUE, 
                   sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 emlDF <- emlDF %>%
@@ -17,11 +17,6 @@ emlDF$extension <- as.factor(emlDF$extension)
 emlDF$target <- as.factor(emlDF$target)
 emlDF <- dplyr::select(emlDF,
                         -date,
-                        -NERDATE,
-                        -NERMONEY,
-                        -NERNUMBER,
-                        -NERADDRESS,
-                        -NERLOCATION,
                         -id)
 #EML
 {
@@ -61,7 +56,3 @@ emlDF <- dplyr::select(emlDF,
   
   cat("Finished NB EML...\n")
 }
-
-
-
-

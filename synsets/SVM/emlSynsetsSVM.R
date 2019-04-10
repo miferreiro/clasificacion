@@ -1,6 +1,6 @@
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 source("transformarRDataPruebas.R")
-dataEml <- read.csv(file = "csvs/outputsyns_spam_ass.csv", header = TRUE, 
+dataEml <- read.csv(file = "csvs/outputsyns_spamassassin_last.csv", header = TRUE, 
                   sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 dataEml <- dataEml %>%
@@ -68,7 +68,3 @@ dataEml <- dplyr::select(dataEml,
   
   cat("Finished SVM EML...\n")
 }
-
-
-
-

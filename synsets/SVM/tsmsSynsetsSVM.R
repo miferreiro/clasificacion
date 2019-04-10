@@ -14,12 +14,11 @@ def.formula <- as.formula("target~.")
 tsmsDF$language <- as.factor(tsmsDF$language)
 tsmsDF$extension <- as.factor(tsmsDF$extension)
 tsmsDF$target <- as.factor(tsmsDF$target)
-tsmsDF <-
-  dplyr::select(tsmsDF,
-                -date,
-                -id,
-                -language
-  )
+tsmsDF <- dplyr::select(tsmsDF,
+                        -date,
+                        -id,
+                        -language
+                        )
 
 #TSMS
 {

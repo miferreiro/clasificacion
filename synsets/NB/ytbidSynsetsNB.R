@@ -1,6 +1,6 @@
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 source("transformarRDataPruebas.R")
-ytbidDF <- read.csv(file = "csvs/outputsyns.csv", header = TRUE, 
+ytbidDF <- read.csv(file = "csvs/outputsyns_youtube_last.csv", header = TRUE, 
                   sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 ytbidDF <- ytbidDF %>%
   transformColums("X.userName") %>%
@@ -16,11 +16,6 @@ ytbidDF$extension <- as.factor(ytbidDF$extension)
 ytbidDF$target <- as.factor(ytbidDF$target)
 ytbidDF <- dplyr::select(ytbidDF,
                         -date,
-                        -NERDATE,
-                        -NERMONEY,
-                        -NERNUMBER,
-                        -NERADDRESS,
-                        -NERLOCATION,
                         -id)
 
 #YTBID
