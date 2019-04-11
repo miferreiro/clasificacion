@@ -1,5 +1,6 @@
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
-source("functions/IG-chi2.R")
+source("functions/chi2.R")
+source("functions/IG.R")
 ytbidDF <- read.csv(file = "csvs/output_youtube_last.csv", header = TRUE, 
                           sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
   
@@ -12,10 +13,10 @@ ytbid.data.frame.dtm <- as.data.frame(as.matrix(ytbid.dtm))
 ytbid.data.frame.dtm$target <- as.factor(ytbidDF$target)
 
 ytbid.chi <- chi_squared(target~., ytbid.data.frame.dtm)
-# ytbid.ig <- information.gain(target~., ytbid.data.frame.dtm)
+ytbid.ig <- information_gain(target~., ytbid.data.frame.dtm)
 
 saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
-# saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
+saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
 
 ################################################################################
 ################################################################################

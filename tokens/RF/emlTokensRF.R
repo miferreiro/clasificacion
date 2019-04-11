@@ -1,5 +1,6 @@
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
-source("functions/IG-chi2.R")
+source("functions/chi2.R")
+source("functions/IG.R")
 emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE, 
                    sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 emlDF <- rbind(emlDF[1:50,],emlDF[3850:3900,])
@@ -13,10 +14,10 @@ eml.data.frame.dtm <- as.data.frame(as.matrix(eml.dtm))
 eml.data.frame.dtm$target <- as.factor(emlDF$target)
 
 eml.chi <- chi_squared(target~., eml.data.frame.dtm)
-# eml.ig <- information.gain(target~., eml.data.frame.dtm)
+eml.ig <- information_gain(target~., eml.data.frame.dtm)
 
 saveRDS(eml.chi, file = "results/eml-chi.rds")
-# saveRDS(tsms.ig, file = "results/tsms-ig.rds")
+saveRDS(eml.ig, file = "results/eml-ig.rds")
 
 ################################################################################
 ################################################################################

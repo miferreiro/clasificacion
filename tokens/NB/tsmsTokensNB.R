@@ -1,5 +1,6 @@
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
-source("functions/IG-chi2.R")
+source("functions/chi2.R")
+source("functions/IG.R")
 tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE, 
                     sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
@@ -12,10 +13,10 @@ tsms.data.frame.dtm <- as.data.frame(as.matrix(tsms.dtm))
 tsms.data.frame.dtm$target <- as.factor(tsmsDF$target)
 
 tsms.chi <- chi_squared(target~., tsms.data.frame.dtm)
-# tsms.ig <- information.gain(target~., tsms.data.frame.dtm)
+tsms.ig <- information_gain(target~., tsms.data.frame.dtm)
 
 saveRDS(tsms.chi, file = "results/tsms-chi.rds")
-# saveRDS(tsms.ig, file = "results/tsms-ig.rds")
+saveRDS(tsms.ig, file = "results/tsms-ig.rds")
 
 ################################################################################
 ################################################################################
