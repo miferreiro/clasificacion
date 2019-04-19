@@ -6,6 +6,12 @@ ytbidDF <- read.csv(file = "csvs/output_youtube_last.csv", header = TRUE,
   
 ytbid.corpus <- VCorpus(VectorSource(ytbidDF$data))
 ytbid.corpus <- tm_map(ytbid.corpus, removePunctuation)
+ytbid.corpus <- tm_map(ytbid.corpus, stripWhitespace)
+removeLongWords <- content_transformer(function(x, length) {
+  
+  return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
+})
+ytbid.corpus <- tm_map(ytbid.corpus, removeLongWords, 25)
 
 #Creating Term-Document Matrices
 ytbid.dtm <- DocumentTermMatrix(ytbid.corpus)

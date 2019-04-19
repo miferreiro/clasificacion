@@ -6,6 +6,12 @@ tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE,
 
 tsms.corpus <- VCorpus(VectorSource(tsmsDF$data))
 tsms.corpus <- tm_map(tsms.corpus, removePunctuation)
+tsms.corpus <- tm_map(tsms.corpus, stripWhitespace)
+removeLongWords <- content_transformer(function(x, length) {
+  
+  return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
+})
+tsms.corpus <- tm_map(tsms.corpus, removeLongWords, 25)
 
 #Creating Term-Document Matrices
 tsms.dtm <- DocumentTermMatrix(tsms.corpus)

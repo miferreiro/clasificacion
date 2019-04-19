@@ -7,6 +7,12 @@ emlDF <- rbind(emlDF[1:50,],emlDF[3850:3900,])
 
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
 eml.corpus <- tm_map(eml.corpus, removePunctuation)
+eml.corpus <- tm_map(eml.corpus, stripWhitespace)
+removeLongWords <- content_transformer(function(x, length) {
+  
+  return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
+})
+eml.corpus <- tm_map(eml.corpus, removeLongWords, 25)
 
 #Creating Term-Document Matrices
 eml.dtm <- DocumentTermMatrix(eml.corpus)
