@@ -34,7 +34,7 @@ ytbid.dtm.cutoff$URLs <- ytbidDF$URLs
 ytbid.dtm.cutoff$emoticon <- ytbidDF$emoticon   
 ytbid.dtm.cutoff$emoji <- ytbidDF$emoji
 ytbid.dtm.cutoff$interjection <- ytbidDF$interjection
-ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
+# ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
 ytbid.dtm.cutoff$extension <- as.factor(ytbidDF$extension)
 ytbid.dtm.cutoff$target <- as.factor(ytbidDF$target)
 
@@ -86,6 +86,6 @@ def.formula <- as.formula("target~.")
   )
   
   cat("Finished Random Forest YTBID...\n")
-  saveRDS( tsms.rf.trained,file = "results/ytbid-tokens-rf-train.rds")
-  saveRDS( tsms.rf.cf,file = "results/ytbid-tokens-rf-test.rds")
+  saveRDS( ytbid.rf.trained,file = "results/ytbid-tokens-rf-train.rds")
+  saveRDS( ytbid.rf.cf,file = "results/ytbid-tokens-rf-test.rds")
 }

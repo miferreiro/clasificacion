@@ -34,7 +34,7 @@ ytbid.dtm.cutoff$URLs <- ytbidDF$URLs
 ytbid.dtm.cutoff$emoticon <- ytbidDF$emoticon   
 ytbid.dtm.cutoff$emoji <- ytbidDF$emoji
 ytbid.dtm.cutoff$interjection <- ytbidDF$interjection
-ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
+# ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
 ytbid.dtm.cutoff$extension <- as.factor(ytbidDF$extension)
 ytbid.dtm.cutoff$target <- as.factor(ytbidDF$target)
 

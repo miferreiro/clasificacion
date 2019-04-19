@@ -34,7 +34,7 @@ ytbid.dtm.cutoff$URLs <- ytbidDF$URLs
 ytbid.dtm.cutoff$emoticon <- ytbidDF$emoticon   
 ytbid.dtm.cutoff$emoji <- ytbidDF$emoji
 ytbid.dtm.cutoff$interjection <- ytbidDF$interjection
-ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
+# ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
 ytbid.dtm.cutoff$extension <- as.factor(ytbidDF$extension)
 ytbid.dtm.cutoff$target <- as.factor(ytbidDF$target)
 
@@ -45,6 +45,7 @@ ytbid.dtm.cutoff <- ytbid.dtm.cutoff %>%
   transformColums("emoticon") %>%
   transformColums("emoji") %>% 
   transformColums("interjection") 
+
 
 def.formula <- as.formula("target~.")
 
@@ -85,6 +86,6 @@ def.formula <- as.formula("target~.")
   )
   
   cat("Finished NB YTBID...\n")
-  saveRDS( tsms.nb.trained,file = "results/ytbid-tokens-nb-train.rds")
-  saveRDS( tsms.nb.cf,file = "results/ytbid-tokens-nb-test.rds")
+  saveRDS( ytbid.nb.trained,file = "results/ytbid-tokens-nb-train.rds")
+  saveRDS( ytbid.nb.cf,file = "results/ytbid-tokens-nb-test.rds")
 }
