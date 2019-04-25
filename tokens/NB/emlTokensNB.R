@@ -3,12 +3,10 @@ source("functions/chi2.R")
 source("functions/IG.R")
 emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE, 
                    sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
-
-emlDF <- rbind(emlDF[1:50,],emlDF[3850:3900,])
-
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
 eml.corpus <- tm_map(eml.corpus, removePunctuation)
 eml.corpus <- tm_map(eml.corpus, stripWhitespace)
+eml.corpus <- tm_map(eml.corpus, removeNumbers)
 removeLongWords <- content_transformer(function(x, length) {
   
   return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
@@ -17,11 +15,13 @@ eml.corpus <- tm_map(eml.corpus, removeLongWords, 25)
 
 #Creating Term-Document Matrices
 eml.dtm <- DocumentTermMatrix(eml.corpus)
-eml.data.frame.dtm <- as.data.frame(as.matrix(eml.dtm))
-eml.data.frame.dtm$target <- as.factor(emlDF$target)
+eml.matrix.dtm <- as.matrix(eml.dtm)
+eml.matrix.dtm <- cbind(as.factor(emlDF$target), eml.matrix.dtm)
+colnames(eml.matrix.dtm)[1] <- "targetHamSpam"
+eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 
-eml.chi <- chi_squared(target~., eml.data.frame.dtm)
-eml.ig <- information_gain(target~., eml.data.frame.dtm)
+eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
+eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
 
 saveRDS(eml.chi, file = "results/eml-chi.rds")
 saveRDS(eml.ig, file = "results/eml-ig.rds")
@@ -29,12 +29,12 @@ saveRDS(eml.ig, file = "results/eml-ig.rds")
 ################################################################################
 ################################################################################
 ################################################################################
-
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
-source("transformarRDataPruebas.R")
 
-cutoff <- cutoff.k.percent(eml.chi, 0.5)
-eml.dtm.cutoff <- subset(eml.data.frame.dtm, select = cutoff)
+percent <- 0.1
+technique.reduce.dimensionality <- eml.chi
+order <- order(technique.reduce.dimensionality, decreasing = TRUE)
+eml.dtm.cutoff <- eml.data.frame.dtm[, order[1:round(percent * length(order))]]
 
 eml.dtm.cutoff$X.userName <- emlDF$X.userName
 eml.dtm.cutoff$hashtag <- emlDF$hashtag 
@@ -44,7 +44,9 @@ eml.dtm.cutoff$emoji <- emlDF$emoji
 eml.dtm.cutoff$interjection <- emlDF$interjection
 eml.dtm.cutoff$language <- as.factor(emlDF$language)
 eml.dtm.cutoff$extension <- as.factor(emlDF$extension)
-eml.dtm.cutoff$target <- as.factor(emlDF$target)
+eml.dtm.cutoff$targetHamSpam <- as.factor(emlDF$target)
+
+source("transformColums.R")
 
 eml.dtm.cutoff <- eml.dtm.cutoff %>%
   transformColums("X.userName") %>%
@@ -54,13 +56,13 @@ eml.dtm.cutoff <- eml.dtm.cutoff %>%
   transformColums("emoji") %>% 
   transformColums("interjection") 
 
-def.formula <- as.formula("target~.")
+def.formula <- as.formula("targetHamSpam~.")
 
 #EML
 {
   cat("Starting NB EML...\n")
   dataEml <- subset(eml.dtm.cutoff, extension == "eml")
-  indexEml <- caret::createDataPartition(dataEml$target, p = .75, list = FALSE)
+  indexEml <- caret::createDataPartition(dataEml$targetHamSpam, p = .75, list = FALSE)
   eml.train <- dataEml[indexEml, ]
   eml.test <-  dataEml[-indexEml, ]
   
@@ -89,7 +91,7 @@ def.formula <- as.formula("target~.")
   cat("Testing NB EML...\n")
   eml.nb.cf <- caret::confusionMatrix(
     predict(eml.nb.trained, newdata = eml.test, type = "raw"),
-    reference = eml.test$target,
+    reference = eml.test$targetHamSpam,
     positive = "spam"
   )
   
@@ -97,3 +99,4 @@ def.formula <- as.formula("target~.")
   saveRDS( eml.nb.trained,file = "results/eml-tokens-nb-train.rds")
   saveRDS( eml.nb.cf,file = "results/eml-tokens-nb-test.rds")
 }
+

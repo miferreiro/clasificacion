@@ -15,11 +15,13 @@ tsms.corpus <- tm_map(tsms.corpus, removeLongWords, 25)
 
 #Creating Term-Document Matrices
 tsms.dtm <- DocumentTermMatrix(tsms.corpus)
-tsms.data.frame.dtm <- as.data.frame(as.matrix(tsms.dtm))
-tsms.data.frame.dtm$target <- as.factor(tsmsDF$target)
+tsms.matrix.dtm <- as.matrix(tsms.dtm)
+tsms.matrix.dtm <- cbind(as.factor(tsmsDF$target), tsms.matrix.dtm)
+colnames(tsms.matrix.dtm)[1] <- "targetHamSpam"
+tsms.data.frame.dtm <- as.data.frame(tsms.matrix.dtm)
 
-tsms.chi <- chi_squared(target~., tsms.data.frame.dtm)
-tsms.ig <- information_gain(target~., tsms.data.frame.dtm)
+tsms.chi <- chi_squared("targetHamSpam", tsms.data.frame.dtm )
+tsms.ig <- information_gain("targetHamSpam", tsms.data.frame.dtm )
 
 saveRDS(tsms.chi, file = "results/tsms-chi.rds")
 saveRDS(tsms.ig, file = "results/tsms-ig.rds")
@@ -28,10 +30,11 @@ saveRDS(tsms.ig, file = "results/tsms-ig.rds")
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
-source("transformarRDataPruebas.R")
 
-cutoff <- cutoff.k.percent(tsms.chi, 0.5)
-tsms.dtm.cutoff <- subset(tsms.data.frame.dtm, select = cutoff)
+percent <- 0.1
+technique.reduce.dimensionality <- tsms.chi
+order <- order(technique.reduce.dimensionality, decreasing = TRUE)
+tsms.dtm.cutoff <- tsms.data.frame.dtm[, order[1:round(percent * length(order))]]
 
 tsms.dtm.cutoff$X.userName <- tsmsDF$X.userName
 tsms.dtm.cutoff$hashtag <- tsmsDF$hashtag 
@@ -41,7 +44,9 @@ tsms.dtm.cutoff$emoji <- tsmsDF$emoji
 tsms.dtm.cutoff$interjection <- tsmsDF$interjection
 tsms.dtm.cutoff$language <- as.factor(tsmsDF$language)
 tsms.dtm.cutoff$extension <- as.factor(tsmsDF$extension)
-tsms.dtm.cutoff$target <- as.factor(tsmsDF$target)
+tsms.dtm.cutoff$targetHamSpam <- as.factor(tsmsDF$target)
+
+source("transformColums.R")
 
 tsms.dtm.cutoff <- tsms.dtm.cutoff %>%
   transformColums("X.userName") %>%
@@ -51,13 +56,13 @@ tsms.dtm.cutoff <- tsms.dtm.cutoff %>%
   transformColums("emoji") %>% 
   transformColums("interjection") 
 
-def.formula <- as.formula("target~.")
+def.formula <- as.formula("targetHamSpam~.")
 
 #TSMS
 {
   cat("Starting NB TSMS...\n")
   dataTsms <- subset(tsms.dtm.cutoff, extension == "tsms")
-  indexTsms <- caret::createDataPartition(dataTsms$target, p = .75, list = FALSE)
+  indexTsms <- caret::createDataPartition(dataTsms$targetHamSpam, p = .75, list = FALSE)
   tsms.train <- dataTsms[indexTsms, ]
   tsms.test <-  dataTsms[-indexTsms, ]
   
@@ -85,7 +90,7 @@ def.formula <- as.formula("target~.")
   cat("Testing NB TSMS...\n")
   tsms.nb.cf <- caret::confusionMatrix(
     predict(tsms.nb.trained, newdata = tsms.test, type = "raw"),
-    reference = tsms.test$target,
+    reference = tsms.test$targetHamSpam,
     positive = "spam"
   )
   
@@ -93,4 +98,5 @@ def.formula <- as.formula("target~.")
   saveRDS( tsms.nb.trained,file = "results/tsms-tokens-nb-train.rds")
   saveRDS( tsms.nb.cf,file = "results/tsms-tokens-nb-test.rds")
 }
+
 

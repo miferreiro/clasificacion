@@ -15,11 +15,13 @@ ytbid.corpus <- tm_map(ytbid.corpus, removeLongWords, 25)
 
 #Creating Term-Document Matrices
 ytbid.dtm <- DocumentTermMatrix(ytbid.corpus)
-ytbid.data.frame.dtm <- as.data.frame(as.matrix(ytbid.dtm))
-ytbid.data.frame.dtm$target <- as.factor(ytbidDF$target)
+ytbid.matrix.dtm <- as.matrix(ytbid.dtm)
+ytbid.matrix.dtm <- cbind(as.factor(ytbidDF$target), ytbid.matrix.dtm)
+colnames(ytbid.matrix.dtm)[1] <- "targetHamSpam"
+ytbid.data.frame.dtm <- as.data.frame(ytbid.matrix.dtm)
 
-ytbid.chi <- chi_squared(target~., ytbid.data.frame.dtm)
-ytbid.ig <- information_gain(target~., ytbid.data.frame.dtm)
+ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
+ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
 
 saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
 saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
@@ -27,12 +29,12 @@ saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
 ################################################################################
 ################################################################################
 ################################################################################
-
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
-source("transformarRDataPruebas.R")
 
-cutoff <- cutoff.k.percent(ytbid.chi, 0.2)
-ytbid.dtm.cutoff <- subset(ytbid.data.frame.dtm, select = cutoff)
+percent <- 0.1
+technique.reduce.dimensionality <- ytbid.chi
+order <- order(technique.reduce.dimensionality, decreasing = TRUE)
+ytbid.dtm.cutoff <- ytbid.data.frame.dtm[, order[1:round(percent * length(order))]]
 
 ytbid.dtm.cutoff$X.userName <- ytbidDF$X.userName
 ytbid.dtm.cutoff$hashtag <- ytbidDF$hashtag 
@@ -42,7 +44,9 @@ ytbid.dtm.cutoff$emoji <- ytbidDF$emoji
 ytbid.dtm.cutoff$interjection <- ytbidDF$interjection
 # ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
 ytbid.dtm.cutoff$extension <- as.factor(ytbidDF$extension)
-ytbid.dtm.cutoff$target <- as.factor(ytbidDF$target)
+ytbid.dtm.cutoff$targetHamSpam <- as.factor(ytbidDF$target)
+
+source("transformColums.R")
 
 ytbid.dtm.cutoff <- ytbid.dtm.cutoff %>%
   transformColums("X.userName") %>%
@@ -52,14 +56,13 @@ ytbid.dtm.cutoff <- ytbid.dtm.cutoff %>%
   transformColums("emoji") %>% 
   transformColums("interjection") 
 
-
-def.formula <- as.formula("target~.")
+def.formula <- as.formula("targetHamSpam~.")
 
 #YTBID
 {
   cat("Starting NB YTBID...\n")
   dataYtbid <- subset(ytbid.dtm.cutoff, extension == "ytbid")
-  indexYtbid <- caret::createDataPartition(dataYtbid$target, p = .75, list = FALSE)
+  indexYtbid <- caret::createDataPartition(dataYtbid$targetHamSpam, p = .75, list = FALSE)
   ytbid.train <- dataYtbid[indexYtbid, ]
   ytbid.test <-  dataYtbid[-indexYtbid, ]
   
@@ -87,7 +90,7 @@ def.formula <- as.formula("target~.")
   cat("Testing NB YTBID...\n")
   ytbid.nb.cf <- caret::confusionMatrix(
     predict(ytbid.nb.trained, newdata = ytbid.test, type = "raw"),
-    reference = ytbid.test$target,
+    reference = ytbid.test$targetHamSpam,
     positive = "spam"
   )
   
@@ -95,3 +98,4 @@ def.formula <- as.formula("target~.")
   saveRDS( ytbid.nb.trained,file = "results/ytbid-tokens-nb-train.rds")
   saveRDS( ytbid.nb.cf,file = "results/ytbid-tokens-nb-test.rds")
 }
+
