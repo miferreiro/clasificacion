@@ -5,7 +5,7 @@ ytbidDF <- read.csv(file = "csvs/output_youtube_last.csv", header = TRUE,
                           sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
   
 ytbid.corpus <- VCorpus(VectorSource(ytbidDF$data))
-ytbid.corpus <- tm_map(ytbid.corpus, removePunctuation)
+ytbid.corpus <- tm_map(ytbid.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
 ytbid.corpus <- tm_map(ytbid.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   

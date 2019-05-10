@@ -5,7 +5,7 @@ tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE,
                     sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 tsms.corpus <- VCorpus(VectorSource(tsmsDF$data))
-tsms.corpus <- tm_map(tsms.corpus, removePunctuation)
+tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
 tsms.corpus <- tm_map(tsms.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   

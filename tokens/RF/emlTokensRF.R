@@ -5,7 +5,7 @@ emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE,
                    sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
-eml.corpus <- tm_map(eml.corpus, removePunctuation)
+eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
 eml.corpus <- tm_map(eml.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   

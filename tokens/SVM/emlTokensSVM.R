@@ -3,9 +3,9 @@ source("functions/chi2.R")
 source("functions/IG.R")
 emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE, 
                    sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
-emlDF <- rbind(emlDF[1:50,],emlDF[3850:3900,])
+
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
-eml.corpus <- tm_map(eml.corpus, removePunctuation)
+eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
 eml.corpus <- tm_map(eml.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   
