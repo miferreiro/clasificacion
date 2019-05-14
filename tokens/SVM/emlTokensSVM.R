@@ -23,18 +23,17 @@ eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
 eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
 
-saveRDS(eml.chi, file = "results/eml-chi.rds")
-saveRDS(eml.ig, file = "results/eml-ig.rds")
+# saveRDS(eml.chi, file = "results/eml-chi.rds")
+# saveRDS(eml.ig, file = "results/eml-ig.rds")
 
 ################################################################################
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-percent <- 0.1
-technique.reduce.dimensionality <- eml.chi
+technique.reduce.dimensionality <- readRDS("results/eml-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-eml.dtm.cutoff <- eml.data.frame.dtm[, order[1:round(percent * length(order))]]
+eml.dtm.cutoff <- eml.data.frame.dtm[,order[1:2000]]
 
 eml.dtm.cutoff$X.userName <- emlDF$X.userName
 eml.dtm.cutoff$hashtag <- emlDF$hashtag 
@@ -90,8 +89,6 @@ def.formula <- as.formula("targetHamSpam~.")
                                   trControl = eml.svm.trControl,
                                   metric = "Accuracy")
   
-  # ,preProcess = c("center","scale", "zv", "corr")
-  
   cat("Testing SVM EML...\n")
   eml.svm.cf <- caret::confusionMatrix(
     predict(eml.svm.trained, newdata = eml.test, type = "raw"),
@@ -100,7 +97,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished SVM EML...\n")
-  saveRDS( eml.svm.trained,file = "results/eml-tokens-svm-train.rds")
-  saveRDS( eml.svm.cf,file = "results/eml-tokens-svm-test.rds")
+  # saveRDS( eml.svm.trained,file = "results/eml-tokens-svm-train.rds")
+  # saveRDS( eml.svm.cf,file = "results/eml-tokens-svm-test.rds")
 }
 

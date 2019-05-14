@@ -23,18 +23,17 @@ tsms.data.frame.dtm <- as.data.frame(tsms.matrix.dtm)
 tsms.chi <- chi_squared("targetHamSpam", tsms.data.frame.dtm )
 tsms.ig <- information_gain("targetHamSpam", tsms.data.frame.dtm )
 
-saveRDS(tsms.chi, file = "results/tsms-chi.rds")
-saveRDS(tsms.ig, file = "results/tsms-ig.rds")
+# saveRDS(tsms.chi, file = "results/tsms-chi.rds")
+# saveRDS(tsms.ig, file = "results/tsms-ig.rds")
 
 ################################################################################
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-percent <- 0.1
-technique.reduce.dimensionality <- tsms.chi
+technique.reduce.dimensionality <- readRDS("results/tsms-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-tsms.dtm.cutoff <- tsms.data.frame.dtm[, order[1:round(percent * length(order))]]
+tsms.dtm.cutoff <- tsms.data.frame.dtm[,order[1:2000]]
 
 tsms.dtm.cutoff$X.userName <- tsmsDF$X.userName
 tsms.dtm.cutoff$hashtag <- tsmsDF$hashtag 
@@ -95,8 +94,8 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB TSMS...\n")
-  saveRDS( tsms.nb.trained,file = "results/tsms-tokens-nb-train.rds")
-  saveRDS( tsms.nb.cf,file = "results/tsms-tokens-nb-test.rds")
+  # saveRDS( tsms.nb.trained,file = "results/tsms-tokens-nb-train.rds")
+  # saveRDS( tsms.nb.cf,file = "results/tsms-tokens-nb-test.rds")
 }
 
 

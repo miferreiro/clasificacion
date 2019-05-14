@@ -29,18 +29,17 @@ data.frame.dtm <- as.data.frame(matrix.dtm)
 chi <- chi_squared("targetHamSpam", data.frame.dtm )
 ig <- information_gain("targetHamSpam", data.frame.dtm )
 
-saveRDS(chi, file = "results/all-chi.rds")
-saveRDS(ig, file = "results/all-ig.rds")
+# saveRDS(chi, file = "results/all-chi.rds")
+# saveRDS(ig, file = "results/all-ig.rds")
 
 ################################################################################
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-percent <- 0.1
-technique.reduce.dimensionality <- chi
+technique.reduce.dimensionality <- readRDS("results/all-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-dtm.cutoff <- data.frame.dtm[, order[1:round(percent * length(order))]]
+dtm.cutoff <- data.frame.dtm[,order[1:2000]]
 
 dtm.cutoff$X.userName <- allDF$X.userName
 dtm.cutoff$hashtag <- allDF$hashtag
@@ -100,6 +99,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
 
   cat("Finished NB ALL...\n")
-  saveRDS(nb.trained, file = "results/all-tokens-nb-train.rds")
-  saveRDS(nb.cf, file = "results/all-tokens-nb-test.rds")
+  # saveRDS(nb.trained, file = "results/all-tokens-nb-train.rds")
+  # saveRDS(nb.cf, file = "results/all-tokens-nb-test.rds")
 }

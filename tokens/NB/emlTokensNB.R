@@ -23,18 +23,17 @@ eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
 eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
 
-saveRDS(eml.chi, file = "results/eml-chi.rds")
-saveRDS(eml.ig, file = "results/eml-ig.rds")
+# saveRDS(eml.chi, file = "results/eml-chi.rds")
+# saveRDS(eml.ig, file = "results/eml-ig.rds")
 
 ################################################################################
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-percent <- 0.1
-technique.reduce.dimensionality <- eml.chi
+technique.reduce.dimensionality <- readRDS("results/eml-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-eml.dtm.cutoff <- eml.data.frame.dtm[, order[1:round(percent * length(order))]]
+eml.dtm.cutoff <- eml.data.frame.dtm[,order[1:2000]]
 
 eml.dtm.cutoff$X.userName <- emlDF$X.userName
 eml.dtm.cutoff$hashtag <- emlDF$hashtag 
@@ -96,7 +95,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB EML...\n")
-  saveRDS( eml.nb.trained,file = "results/eml-tokens-nb-train.rds")
-  saveRDS( eml.nb.cf,file = "results/eml-tokens-nb-test.rds")
+  # saveRDS( eml.nb.trained,file = "results/eml-tokens-nb-train.rds")
+  # saveRDS( eml.nb.cf,file = "results/eml-tokens-nb-test.rds")
 }
 

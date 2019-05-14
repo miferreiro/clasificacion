@@ -13,28 +13,27 @@ removeLongWords <- content_transformer(function(x, length) {
 })
 ytbid.corpus <- tm_map(ytbid.corpus, removeLongWords, 25)
 
-#Creating Term-Document Matrices
+# Creating Term-Document Matrices
 ytbid.dtm <- DocumentTermMatrix(ytbid.corpus)
 ytbid.matrix.dtm <- as.matrix(ytbid.dtm)
 ytbid.matrix.dtm <- cbind(as.factor(ytbidDF$target), ytbid.matrix.dtm)
 colnames(ytbid.matrix.dtm)[1] <- "targetHamSpam"
 ytbid.data.frame.dtm <- as.data.frame(ytbid.matrix.dtm)
+ 
+# ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
+# ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
 
-ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
-ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
-
-saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
-saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
+# saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
+# saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
 
 ################################################################################
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-percent <- 0.1
-technique.reduce.dimensionality <- ytbid.chi
+technique.reduce.dimensionality <- readRDS("results/ytbid-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-ytbid.dtm.cutoff <- ytbid.data.frame.dtm[, order[1:round(percent * length(order))]]
+ytbid.dtm.cutoff <- ytbid.data.frame.dtm[,order[1:2000]]
 
 ytbid.dtm.cutoff$X.userName <- ytbidDF$X.userName
 ytbid.dtm.cutoff$hashtag <- ytbidDF$hashtag 
@@ -95,7 +94,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB YTBID...\n")
-  saveRDS( ytbid.nb.trained,file = "results/ytbid-tokens-nb-train.rds")
-  saveRDS( ytbid.nb.cf,file = "results/ytbid-tokens-nb-test.rds")
+  # saveRDS( ytbid.nb.trained,file = "results/ytbid-tokens-nb-train.rds")
+  # saveRDS( ytbid.nb.cf,file = "results/ytbid-tokens-nb-test.rds")
 }
 

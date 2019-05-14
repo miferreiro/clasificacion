@@ -23,18 +23,17 @@ ytbid.data.frame.dtm <- as.data.frame(ytbid.matrix.dtm)
 ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
 ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
 
-saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
-saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
+# saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
+# saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
 
 ################################################################################
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-percent <- 0.1
-technique.reduce.dimensionality <- ytbid.chi
+technique.reduce.dimensionality <- readRDS("results/tsms-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-ytbid.dtm.cutoff <- ytbid.data.frame.dtm[, order[1:round(percent * length(order))]]
+tsms.dtm.cutoff <- tsms.data.frame.dtm[,order[1:2000]]
 
 ytbid.dtm.cutoff$X.userName <- ytbidDF$X.userName
 ytbid.dtm.cutoff$hashtag <- ytbidDF$hashtag 
@@ -96,6 +95,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished Random Forest YTBID...\n")
-  saveRDS( ytbid.rf.trained,file = "results/ytbid-tokens-rf-train.rds")
-  saveRDS( ytbid.rf.cf,file = "results/ytbid-tokens-rf-test.rds")
+  # saveRDS( ytbid.rf.trained,file = "results/ytbid-tokens-rf-train.rds")
+  # saveRDS( ytbid.rf.cf,file = "results/ytbid-tokens-rf-test.rds")
 }
