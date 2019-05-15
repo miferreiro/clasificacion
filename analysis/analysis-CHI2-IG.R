@@ -1,7 +1,8 @@
-file = "results/eml-ig.rds"
+library(dplyr)
+file = "results/all-chi.rds"
 chi2 <- readRDS(file = file)
 chi2 <- arrange(chi2,-attr_importance)
-plot(type = "l", density(chi2$attr_importance), main = "Eml IG", xlab = "importance", ylab = "Density")
+plot(type = "l", density(chi2$attr_importance), xlim=c(0,0.1),main = "All IG", xlab = "importance", ylab = "Density")
 cut.off.chi2 = 2000
 abline(v = chi2$attr_importance[cut.off.chi2], col = "blue", lty = 2)
 

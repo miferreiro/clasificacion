@@ -5,7 +5,7 @@ emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE,
                    sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
-eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 eml.corpus <- tm_map(eml.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   
@@ -20,8 +20,8 @@ eml.matrix.dtm <- cbind(as.factor(emlDF$target), eml.matrix.dtm)
 colnames(eml.matrix.dtm)[1] <- "targetHamSpam"
 eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 
-eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
-eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
+# eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
+# eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
 
 # saveRDS(eml.chi, file = "results/eml-chi.rds")
 # saveRDS(eml.ig, file = "results/eml-ig.rds")
@@ -60,6 +60,7 @@ def.formula <- as.formula("targetHamSpam~.")
 #eml
 {
   cat("Starting SVM EML...\n")
+  set.seed(100)
   dataEml <- subset(eml.dtm.cutoff, extension == "eml")
   indexEml <- caret::createDataPartition(dataEml$targetHamSpam, p = .75, list = FALSE)
   
@@ -97,7 +98,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished SVM EML...\n")
-  # saveRDS( eml.svm.trained,file = "results/eml-tokens-svm-train.rds")
-  # saveRDS( eml.svm.cf,file = "results/eml-tokens-svm-test.rds")
+  saveRDS( eml.svm.trained,file = "results/eml-tokens-svm-train.rds")
+  saveRDS( eml.svm.cf,file = "results/eml-tokens-svm-test.rds")
 }
 

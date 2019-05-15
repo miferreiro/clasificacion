@@ -5,7 +5,7 @@ ytbidDF <- read.csv(file = "csvs/output_youtube_last.csv", header = TRUE,
                           sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
   
 ytbid.corpus <- VCorpus(VectorSource(ytbidDF$data))
-ytbid.corpus <- tm_map(ytbid.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+ytbid.corpus <- tm_map(ytbid.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 ytbid.corpus <- tm_map(ytbid.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   
@@ -20,8 +20,8 @@ ytbid.matrix.dtm <- cbind(as.factor(ytbidDF$target), ytbid.matrix.dtm)
 colnames(ytbid.matrix.dtm)[1] <- "targetHamSpam"
 ytbid.data.frame.dtm <- as.data.frame(ytbid.matrix.dtm)
 
-ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
-ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
+# ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
+# ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
 
 # saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
 # saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
@@ -31,9 +31,9 @@ ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/tsms-chi.rds")
+technique.reduce.dimensionality <- readRDS("results/ytbid-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-tsms.dtm.cutoff <- tsms.data.frame.dtm[,order[1:2000]]
+ytbid.dtm.cutoff <- ytbid.data.frame.dtm[,order[1:2000]]
 
 ytbid.dtm.cutoff$X.userName <- ytbidDF$X.userName
 ytbid.dtm.cutoff$hashtag <- ytbidDF$hashtag 
@@ -41,7 +41,7 @@ ytbid.dtm.cutoff$URLs <- ytbidDF$URLs
 ytbid.dtm.cutoff$emoticon <- ytbidDF$emoticon   
 ytbid.dtm.cutoff$emoji <- ytbidDF$emoji
 ytbid.dtm.cutoff$interjection <- ytbidDF$interjection
-ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
+# ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
 ytbid.dtm.cutoff$extension <- as.factor(ytbidDF$extension)
 ytbid.dtm.cutoff$targetHamSpam <- as.factor(ytbidDF$target)
 
@@ -95,6 +95,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished Random Forest YTBID...\n")
-  # saveRDS( ytbid.rf.trained,file = "results/ytbid-tokens-rf-train.rds")
-  # saveRDS( ytbid.rf.cf,file = "results/ytbid-tokens-rf-test.rds")
+  saveRDS( ytbid.rf.trained,file = "results/ytbid-tokens-rf-train.rds")
+  saveRDS( ytbid.rf.cf,file = "results/ytbid-tokens-rf-test.rds")
 }
+

@@ -11,7 +11,7 @@ ytbidDF <- read.csv(file = "csvs/output_youtube_last.csv", header = TRUE,
 allDF <- rbind(tsmsDF, emlDF, ytbidDF)
 
 corpus <- VCorpus(VectorSource(allDF$data))
-corpus <- tm_map(corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+corpus <- tm_map(corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 corpus <- tm_map(corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
 
@@ -26,8 +26,8 @@ matrix.dtm <- cbind(as.factor(allDF$target), matrix.dtm)
 colnames(matrix.dtm)[1] <- "targetHamSpam"
 data.frame.dtm <- as.data.frame(matrix.dtm)
 
-chi <- chi_squared("targetHamSpam", data.frame.dtm )
-ig <- information_gain("targetHamSpam", data.frame.dtm )
+# chi <- chi_squared("targetHamSpam", data.frame.dtm )
+# ig <- information_gain("targetHamSpam", data.frame.dtm )
 
 # saveRDS(chi, file = "results/all-chi.rds")
 # saveRDS(ig, file = "results/all-ig.rds")
@@ -66,6 +66,7 @@ def.formula <- as.formula("targetHamSpam~.")
 #TSMS
 {
   cat("Starting Random Forest ALL...\n")
+  set.seed(100)
   indexAll <- caret::createDataPartition(dtm.cutoff$targetHamSpam, p = .75, list = FALSE)
   train <- dtm.cutoff[indexAll, ]
   test <-  dtm.cutoff[-indexAll, ]
@@ -73,9 +74,7 @@ def.formula <- as.formula("targetHamSpam~.")
   rf.rec <- recipes::recipe(formula = def.formula, data = train) %>%
     step_zv(all_predictors()) %>% #remove zero variance
     step_nzv(all_predictors()) %>% #remove near-zero variance
-    step_corr(all_predictors()) %>% #remove high correlation filter.
-    step_center(all_predictors()) %>% #normalize data -> mean of zero (important for SVM and KNN)
-    step_scale(all_predictors()) #Scale data to have standard deviation of 1 (important for SVM and KNN).
+    step_corr(all_predictors()) #remove high correlation filter.
 
   rf.trControl <- caret::trainControl(method = "cv", #use cross-validation
                                       number = 10, #divide cross-validation into 10 folds
@@ -101,6 +100,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
 
   cat("Finished Random Forest ALL...\n")
-  # saveRDS(rf.trained, file = "results/all-tokens-svm-train.rds")
-  # saveRDS(rf.cf, file = "results/all-tokens-svm-test.rds")
+  saveRDS(rf.trained, file = "results/all-tokens-rf-train.rds")
+  saveRDS(rf.cf, file = "results/all-tokens-rf-test.rds")
 }

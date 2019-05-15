@@ -4,7 +4,7 @@ source("functions/IG.R")
 emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE, 
                    sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
-eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 eml.corpus <- tm_map(eml.corpus, stripWhitespace)
 eml.corpus <- tm_map(eml.corpus, removeNumbers)
 removeLongWords <- content_transformer(function(x, length) {
@@ -20,9 +20,9 @@ eml.matrix.dtm <- cbind(as.factor(emlDF$target), eml.matrix.dtm)
 colnames(eml.matrix.dtm)[1] <- "targetHamSpam"
 eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 
-eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
-eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
-
+# eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
+# eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
+# 
 # saveRDS(eml.chi, file = "results/eml-chi.rds")
 # saveRDS(eml.ig, file = "results/eml-ig.rds")
 
@@ -60,6 +60,7 @@ def.formula <- as.formula("targetHamSpam~.")
 #EML
 {
   cat("Starting NB EML...\n")
+  set.seed(100)
   dataEml <- subset(eml.dtm.cutoff, extension == "eml")
   indexEml <- caret::createDataPartition(dataEml$targetHamSpam, p = .75, list = FALSE)
   eml.train <- dataEml[indexEml, ]
@@ -84,8 +85,7 @@ def.formula <- as.formula("targetHamSpam~.")
                                  data = eml.train,
                                  method = "nb",
                                  trControl = eml.nb.trControl,
-                                 metric = "Accuracy",
-                                 preProcess = c("center","scale", "zv", "corr")
+                                 metric = "Accuracy"
   )
   cat("Testing NB EML...\n")
   eml.nb.cf <- caret::confusionMatrix(
@@ -95,7 +95,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB EML...\n")
-  # saveRDS( eml.nb.trained,file = "results/eml-tokens-nb-train.rds")
-  # saveRDS( eml.nb.cf,file = "results/eml-tokens-nb-test.rds")
+  saveRDS( eml.nb.trained,file = "results/eml-tokens-nb-train.rds")
+  saveRDS( eml.nb.cf,file = "results/eml-tokens-nb-test.rds")
 }
 

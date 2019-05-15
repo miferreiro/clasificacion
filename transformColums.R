@@ -10,6 +10,6 @@ transformColums <- function(RData, column) {
     }
   })
   
-  RData[, column] <- as.numeric(RData[, column])
+  RData[, column] <- as.factor(RData[, column])
   return(RData)
 }

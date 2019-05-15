@@ -5,7 +5,7 @@ tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE,
                     sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 tsms.corpus <- VCorpus(VectorSource(tsmsDF$data))
-tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 tsms.corpus <- tm_map(tsms.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   
@@ -20,9 +20,9 @@ tsms.matrix.dtm <- cbind(as.factor(tsmsDF$target), tsms.matrix.dtm)
 colnames(tsms.matrix.dtm)[1] <- "targetHamSpam"
 tsms.data.frame.dtm <- as.data.frame(tsms.matrix.dtm)
 
-tsms.chi <- chi_squared("targetHamSpam", tsms.data.frame.dtm )
-tsms.ig <- information_gain("targetHamSpam", tsms.data.frame.dtm )
-
+# tsms.chi <- chi_squared("targetHamSpam", tsms.data.frame.dtm )
+# tsms.ig <- information_gain("targetHamSpam", tsms.data.frame.dtm )
+# 
 # saveRDS(tsms.chi, file = "results/tsms-chi.rds")
 # saveRDS(tsms.ig, file = "results/tsms-ig.rds")
 
@@ -60,6 +60,7 @@ def.formula <- as.formula("targetHamSpam~.")
 #TSMS
 {
   cat("Starting NB TSMS...\n")
+  set.seed(100)
   dataTsms <- subset(tsms.dtm.cutoff, extension == "tsms")
   indexTsms <- caret::createDataPartition(dataTsms$targetHamSpam, p = .75, list = FALSE)
   tsms.train <- dataTsms[indexTsms, ]
@@ -94,8 +95,8 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB TSMS...\n")
-  # saveRDS( tsms.nb.trained,file = "results/tsms-tokens-nb-train.rds")
-  # saveRDS( tsms.nb.cf,file = "results/tsms-tokens-nb-test.rds")
+  saveRDS( tsms.nb.trained,file = "results/tsms-tokens-nb-train.rds")
+  saveRDS( tsms.nb.cf,file = "results/tsms-tokens-nb-test.rds")
 }
 
 

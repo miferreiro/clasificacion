@@ -5,7 +5,7 @@ tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE,
                     sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 tsms.corpus <- VCorpus(VectorSource(tsmsDF$data))
-tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 tsms.corpus <- tm_map(tsms.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   
@@ -60,6 +60,7 @@ def.formula <- as.formula("targetHamSpam~.")
 #TSMS
 {
   cat("Starting SVM TSMS...\n")
+  set.seed(100)
   dataTsms <- subset(tsms.dtm.cutoff, extension == "tsms")
   indexTsms <- caret::createDataPartition(dataTsms$targetHamSpam, p = .75, list = FALSE)
   tsms.train <- dataTsms[indexTsms, ]
@@ -68,9 +69,7 @@ def.formula <- as.formula("targetHamSpam~.")
   tsms.svm.rec <- recipes::recipe(formula = def.formula, data = tsms.train) %>%
     step_zv(all_predictors()) %>% #remove zero variance
     step_nzv(all_predictors()) %>% #remove near-zero variance
-    step_corr(all_predictors()) %>% #remove high correlation filter.
-    step_center(all_predictors()) %>% #normalize data -> mean of zero (important for SVM and KNN) 
-    step_scale(all_predictors()) #Scale data to have standard deviation of 1 (important for SVM and KNN).
+    step_corr(all_predictors()) 
   
   tsms.svm.trControl <- caret::trainControl(method = "cv", #use cross-validation
                                             number = 10, #divide cross-validation into 10 folds
@@ -96,6 +95,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished SVM TSMS...\n")
-  # saveRDS( tsms.svm.trained,file = "results/tsms-tokens-svm-train.rds")
-  # saveRDS( tsms.svm.cf,file = "results/tsms-tokens-svm-test.rds")
+  saveRDS( tsms.svm.trained,file = "results/tsms-tokens-svm-train.rds")
+  saveRDS( tsms.svm.cf,file = "results/tsms-tokens-svm-test.rds")
 }

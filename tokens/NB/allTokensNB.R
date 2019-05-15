@@ -11,7 +11,7 @@ ytbidDF <- read.csv(file = "csvs/output_youtube_last.csv", header = TRUE,
 allDF <- rbind(tsmsDF, emlDF, ytbidDF)
 
 corpus <- VCorpus(VectorSource(allDF$data))
-corpus <- tm_map(corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+corpus <- tm_map(corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 corpus <- tm_map(corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
 
@@ -20,15 +20,14 @@ removeLongWords <- content_transformer(function(x, length) {
 corpus <- tm_map(corpus, removeLongWords, 25)
 
 #Creating Term-Document Matrices
-dtm <- DocumentTermMatrix(corpus)
-matrix.dtm <- as.matrix(dtm)
+matrix.dtm <- as.matrix(DocumentTermMatrix(corpus))
 matrix.dtm <- cbind(as.factor(allDF$target), matrix.dtm)
 colnames(matrix.dtm)[1] <- "targetHamSpam"
 data.frame.dtm <- as.data.frame(matrix.dtm)
-
-chi <- chi_squared("targetHamSpam", data.frame.dtm )
-ig <- information_gain("targetHamSpam", data.frame.dtm )
-
+rm(matrix.dtm)
+# chi <- chi_squared("targetHamSpam", data.frame.dtm )
+# ig <- information_gain("targetHamSpam", data.frame.dtm )
+# 
 # saveRDS(chi, file = "results/all-chi.rds")
 # saveRDS(ig, file = "results/all-ig.rds")
 
@@ -41,13 +40,15 @@ technique.reduce.dimensionality <- readRDS("results/all-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 dtm.cutoff <- data.frame.dtm[,order[1:2000]]
 
+rm(order)
+
 dtm.cutoff$X.userName <- allDF$X.userName
 dtm.cutoff$hashtag <- allDF$hashtag
 dtm.cutoff$URLs <- allDF$URLs
 dtm.cutoff$emoticon <- allDF$emoticon
 dtm.cutoff$emoji <- allDF$emoji
 dtm.cutoff$interjection <- allDF$interjection
-dtm.cutoff$language <- as.factor(allDF$language)
+# dtm.cutoff$language <- as.factor(allDF$language)
 dtm.cutoff$extension <- as.factor(allDF$extension)
 dtm.cutoff$targetHamSpam <- as.factor(allDF$target)
 
@@ -63,9 +64,10 @@ dtm.cutoff <- dtm.cutoff %>%
 
 def.formula <- as.formula("targetHamSpam~.")
 
-#TSMS
+#ALL
 {
   cat("Starting NB ALL...\n")
+  set.seed(100)
   indexAll <- caret::createDataPartition(dtm.cutoff$targetHamSpam, p = .75, list = FALSE)
   train <- dtm.cutoff[indexAll, ]
   test <-  dtm.cutoff[-indexAll, ]
@@ -99,6 +101,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
 
   cat("Finished NB ALL...\n")
-  # saveRDS(nb.trained, file = "results/all-tokens-nb-train.rds")
-  # saveRDS(nb.cf, file = "results/all-tokens-nb-test.rds")
+  saveRDS(nb.trained, file = "results/all-tokens-nb-train.rds")
+  saveRDS(nb.cf, file = "results/all-tokens-nb-test.rds")
 }

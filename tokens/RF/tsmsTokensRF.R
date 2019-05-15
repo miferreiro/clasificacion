@@ -5,7 +5,7 @@ tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE,
                     sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
 
 tsms.corpus <- VCorpus(VectorSource(tsmsDF$data))
-tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 tsms.corpus <- tm_map(tsms.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   
@@ -60,13 +60,14 @@ def.formula <- as.formula("targetHamSpam~.")
 #TSMS
 {
   cat("Starting Random Forest TSMS...\n")
+  set.seed(100)
   dataTsms <- subset(tsms.dtm.cutoff, extension == "tsms")
   indexTsms <- caret::createDataPartition(dataTsms$targetHamSpam, p = .75, list = FALSE)
   tsms.train <- dataTsms[indexTsms, ]
   tsms.test <-  dataTsms[-indexTsms, ]
   
   tsms.rf.rec <- recipes::recipe(formula = def.formula, data = tsms.train) %>%
-    step_zv(all_predictors()) %>% #remove zero variance
+    step_zv(all_predictors()) %>% #remove zero variancer
     step_nzv(all_predictors()) %>% #remove near-zero variance
     step_corr(all_predictors()) #remove high correlation filter.
   
@@ -93,6 +94,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished Random Forest TSMS...\n")
-  # saveRDS( tsms.rf.trained,file = "results/tsms-tokens-rf-train.rds")
-  # saveRDS( tsms.rf.cf,file = "results/tsms-tokens-rf-test.rds")
+  saveRDS( tsms.rf.trained,file = "results/tsms-tokens-rf-train.rds")
+  saveRDS( tsms.rf.cf,file = "results/tsms-tokens-rf-test.rds")
 }

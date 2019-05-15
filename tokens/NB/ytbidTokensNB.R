@@ -5,7 +5,7 @@ ytbidDF <- read.csv(file = "csvs/output_youtube_last.csv", header = TRUE,
                           sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
   
 ytbid.corpus <- VCorpus(VectorSource(ytbidDF$data))
-ytbid.corpus <- tm_map(ytbid.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\[\\]\\\\^_\\{\\}|~-]+', replacement = ' ')
+ytbid.corpus <- tm_map(ytbid.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 ytbid.corpus <- tm_map(ytbid.corpus, stripWhitespace)
 removeLongWords <- content_transformer(function(x, length) {
   
@@ -20,11 +20,11 @@ ytbid.matrix.dtm <- cbind(as.factor(ytbidDF$target), ytbid.matrix.dtm)
 colnames(ytbid.matrix.dtm)[1] <- "targetHamSpam"
 ytbid.data.frame.dtm <- as.data.frame(ytbid.matrix.dtm)
  
-# ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
-# ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
+ytbid.chi <- chi_squared("targetHamSpam", ytbid.data.frame.dtm)
+ytbid.ig <- information_gain("targetHamSpam", ytbid.data.frame.dtm)
 
-# saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
-# saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
+saveRDS(ytbid.chi, file = "results/ytbid-chi.rds")
+saveRDS(ytbid.ig, file = "results/ytbid-ig.rds")
 
 ################################################################################
 ################################################################################
@@ -41,7 +41,7 @@ ytbid.dtm.cutoff$URLs <- ytbidDF$URLs
 ytbid.dtm.cutoff$emoticon <- ytbidDF$emoticon   
 ytbid.dtm.cutoff$emoji <- ytbidDF$emoji
 ytbid.dtm.cutoff$interjection <- ytbidDF$interjection
-# ytbid.dtm.cutoff$language <- as.factor(ytbidDF$language)
+# ytbid.dtm.cutoff$language <- as.numeric(as.factor(ytbidDF$language))
 ytbid.dtm.cutoff$extension <- as.factor(ytbidDF$extension)
 ytbid.dtm.cutoff$targetHamSpam <- as.factor(ytbidDF$target)
 
@@ -60,6 +60,7 @@ def.formula <- as.formula("targetHamSpam~.")
 #YTBID
 {
   cat("Starting NB YTBID...\n")
+  set.seed(100)
   dataYtbid <- subset(ytbid.dtm.cutoff, extension == "ytbid")
   indexYtbid <- caret::createDataPartition(dataYtbid$targetHamSpam, p = .75, list = FALSE)
   ytbid.train <- dataYtbid[indexYtbid, ]
@@ -94,7 +95,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB YTBID...\n")
-  # saveRDS( ytbid.nb.trained,file = "results/ytbid-tokens-nb-train.rds")
-  # saveRDS( ytbid.nb.cf,file = "results/ytbid-tokens-nb-test.rds")
+  saveRDS( ytbid.nb.trained,file = "results/ytbid-tokens-nb-train.rds")
+  saveRDS( ytbid.nb.cf,file = "results/ytbid-tokens-nb-test.rds")
 }
 
