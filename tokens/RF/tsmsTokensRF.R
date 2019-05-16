@@ -7,6 +7,7 @@ tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE,
 tsms.corpus <- VCorpus(VectorSource(tsmsDF$data))
 tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 tsms.corpus <- tm_map(tsms.corpus, stripWhitespace)
+tsms.corpus <- tm_map(tsms.corpus, removeNumbers)
 removeLongWords <- content_transformer(function(x, length) {
   
   return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
@@ -20,9 +21,9 @@ tsms.matrix.dtm <- cbind(as.factor(tsmsDF$target), tsms.matrix.dtm)
 colnames(tsms.matrix.dtm)[1] <- "targetHamSpam"
 tsms.data.frame.dtm <- as.data.frame(tsms.matrix.dtm)
 
-tsms.chi <- chi_squared("targetHamSpam", tsms.data.frame.dtm )
-tsms.ig <- information_gain("targetHamSpam", tsms.data.frame.dtm )
-
+# tsms.chi <- chi_squared("targetHamSpam", tsms.data.frame.dtm)
+# tsms.ig <- information_gain("targetHamSpam", tsms.data.frame.dtm)
+# 
 # saveRDS(tsms.chi, file = "results/tsms-chi.rds")
 # saveRDS(tsms.ig, file = "results/tsms-ig.rds")
 
@@ -31,7 +32,7 @@ tsms.ig <- information_gain("targetHamSpam", tsms.data.frame.dtm )
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/tsms-chi.rds")
+technique.reduce.dimensionality <- readRDS("results/tsms-ig.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 tsms.dtm.cutoff <- tsms.data.frame.dtm[,order[1:2000]]
 
@@ -94,6 +95,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished Random Forest TSMS...\n")
-  saveRDS( tsms.rf.trained,file = "results/tsms-tokens-rf-train.rds")
-  saveRDS( tsms.rf.cf,file = "results/tsms-tokens-rf-test.rds")
+  saveRDS( tsms.rf.trained,file = "results/tsms-tokens-ig-rf-train.rds")
+  saveRDS( tsms.rf.cf,file = "results/tsms-tokens-ig-rf-test.rds")
 }

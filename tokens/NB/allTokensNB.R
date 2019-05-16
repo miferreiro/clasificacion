@@ -13,6 +13,7 @@ allDF <- rbind(tsmsDF, emlDF, ytbidDF)
 corpus <- VCorpus(VectorSource(allDF$data))
 corpus <- tm_map(corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 corpus <- tm_map(corpus, stripWhitespace)
+corpus <- tm_map(corpus, removeNumbers)
 removeLongWords <- content_transformer(function(x, length) {
 
   return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))

@@ -7,6 +7,7 @@ tsmsDF <- read.csv(file = "csvs/output_sms_last.csv", header = TRUE,
 tsms.corpus <- VCorpus(VectorSource(tsmsDF$data))
 tsms.corpus <- tm_map(tsms.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 tsms.corpus <- tm_map(tsms.corpus, stripWhitespace)
+tsms.corpus <- tm_map(tsms.corpus, removeNumbers)
 removeLongWords <- content_transformer(function(x, length) {
   
   return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
@@ -31,7 +32,7 @@ tsms.data.frame.dtm <- as.data.frame(tsms.matrix.dtm)
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/tsms-chi.rds")
+technique.reduce.dimensionality <- readRDS("results/tsms-ig.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 tsms.dtm.cutoff <- tsms.data.frame.dtm[,order[1:2000]]
 
@@ -95,8 +96,8 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB TSMS...\n")
-  saveRDS( tsms.nb.trained,file = "results/tsms-tokens-nb-train.rds")
-  saveRDS( tsms.nb.cf,file = "results/tsms-tokens-nb-test.rds")
+  saveRDS(tsms.nb.trained, file = "results/tsms-tokens-ig-nb-train.rds")
+  saveRDS(tsms.nb.cf, file = "results/tsms-tokens-ig-nb-test.rds")
 }
 
 

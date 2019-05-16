@@ -3,6 +3,7 @@ source("functions/chi2.R")
 source("functions/IG.R")
 emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE, 
                    sep = ";", dec = ".", fill = FALSE, stringsAsFactors = FALSE)
+
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
 eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 eml.corpus <- tm_map(eml.corpus, stripWhitespace)
@@ -31,7 +32,7 @@ eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/eml-chi.rds")
+technique.reduce.dimensionality <- readRDS("results/eml-ig.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 eml.dtm.cutoff <- eml.data.frame.dtm[,order[1:2000]]
 
@@ -95,7 +96,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB EML...\n")
-  saveRDS( eml.nb.trained,file = "results/eml-tokens-nb-train.rds")
-  saveRDS( eml.nb.cf,file = "results/eml-tokens-nb-test.rds")
+  saveRDS(eml.nb.trained, file = "results/eml-tokens-ig-nb-train.rds")
+  saveRDS(eml.nb.cf, file = "results/eml-tokens-ig-nb-test.rds")
 }
 

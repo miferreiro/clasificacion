@@ -13,6 +13,7 @@ allDF <- rbind(tsmsDF, emlDF, ytbidDF)
 corpus <- VCorpus(VectorSource(allDF$data))
 corpus <- tm_map(corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 corpus <- tm_map(corpus, stripWhitespace)
+corpus <- tm_map(corpus, removeNumbers)
 removeLongWords <- content_transformer(function(x, length) {
 
   return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
@@ -26,11 +27,11 @@ matrix.dtm <- cbind(as.factor(allDF$target), matrix.dtm)
 colnames(matrix.dtm)[1] <- "targetHamSpam"
 data.frame.dtm <- as.data.frame(matrix.dtm)
 
-# chi <- chi_squared("targetHamSpam", data.frame.dtm )
-# ig <- information_gain("targetHamSpam", data.frame.dtm )
+chi <- chi_squared("targetHamSpam", data.frame.dtm )
+ig <- information_gain("targetHamSpam", data.frame.dtm )
 
-# saveRDS(chi, file = "results/all-chi.rds")
-# saveRDS(ig, file = "results/all-ig.rds")
+saveRDS(chi, file = "results/all-chi.rds")
+saveRDS(ig, file = "results/all-ig.rds")
 
 ################################################################################
 ################################################################################
@@ -100,6 +101,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
 
   cat("Finished Random Forest ALL...\n")
-  saveRDS(rf.trained, file = "results/all-tokens-rf-train.rds")
-  saveRDS(rf.cf, file = "results/all-tokens-rf-test.rds")
+  saveRDS(rf.trained, file = "results/all-tokens-chi-rf-train.rds")
+  saveRDS(rf.cf, file = "results/all-tokens-chi-rf-test.rds")
 }

@@ -7,6 +7,7 @@ emlDF <- read.csv(file = "csvs/output_spamassasin_last.csv", header = TRUE,
 eml.corpus <- VCorpus(VectorSource(emlDF$data))
 eml.corpus <- tm_map(eml.corpus, content_transformer(gsub), pattern = '[!"#$%&\'()*+,.\\/:;<=>?@\\\\^_\\{\\}|~-]+', replacement = ' ')
 eml.corpus <- tm_map(eml.corpus, stripWhitespace)
+eml.corpus <- tm_map(eml.corpus, removeNumbers)
 removeLongWords <- content_transformer(function(x, length) {
   
   return(gsub(paste("(?:^|[[:space:]])[[:alnum:]]{", length, ",}(?=$|[[:space:]])", sep = ""), "", x, perl = T))
@@ -22,7 +23,7 @@ eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 
 # eml.chi <- chi_squared("targetHamSpam", eml.data.frame.dtm)
 # eml.ig <- information_gain("targetHamSpam", eml.data.frame.dtm)
-
+# 
 # saveRDS(eml.chi, file = "results/eml-chi.rds")
 # saveRDS(eml.ig, file = "results/eml-ig.rds")
 
@@ -95,6 +96,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished Random Forest EML...\n")
-  saveRDS(eml.rf.trained,file = "results/eml-tokens-rf-train.rds")
-  saveRDS(eml.rf.cf,file = "results/eml-tokens-rf-test.rds")
+  saveRDS(eml.rf.trained,file = "results/eml-tokens-chi-rf-train.rds")
+  saveRDS(eml.rf.cf,file = "results/eml-tokens-chi-rf-test.rds")
 }
