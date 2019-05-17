@@ -1,3 +1,5 @@
+technique <- "chi"
+for(technique in c("chi","ig")){
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
 source("functions/chi2.R")
 source("functions/IG.R")
@@ -32,7 +34,7 @@ eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/eml-ig.rds")
+technique.reduce.dimensionality <- readRDS(paste("results/eml-",technique,".rds",sep=""))
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 eml.dtm.cutoff <- eml.data.frame.dtm[,order[1:2000]]
 
@@ -42,7 +44,6 @@ eml.dtm.cutoff$URLs <- emlDF$URLs
 eml.dtm.cutoff$emoticon <- emlDF$emoticon   
 eml.dtm.cutoff$emoji <- emlDF$emoji
 eml.dtm.cutoff$interjection <- emlDF$interjection
-eml.dtm.cutoff$language <- as.factor(emlDF$language)
 eml.dtm.cutoff$extension <- as.factor(emlDF$extension)
 eml.dtm.cutoff$targetHamSpam <- as.factor(emlDF$target)
 
@@ -86,7 +87,7 @@ def.formula <- as.formula("targetHamSpam~.")
                                  data = eml.train,
                                  method = "nb",
                                  trControl = eml.nb.trControl,
-                                 metric = "Accuracy"
+                                 metric = "Kappa"
   )
   cat("Testing NB EML...\n")
   eml.nb.cf <- caret::confusionMatrix(
@@ -96,7 +97,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB EML...\n")
-  saveRDS(eml.nb.trained, file = "results/eml-tokens-ig-nb-train.rds")
-  saveRDS(eml.nb.cf, file = "results/eml-tokens-ig-nb-test.rds")
+  saveRDS(eml.nb.trained, file = paste("results/eml-tokens-",technique,"-nb-train.rds",sep=""))
+  saveRDS(eml.nb.cf, file = paste("results/eml-tokens-",technique,"-nb-test.rds",sep=""))
 }
-
+}

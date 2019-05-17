@@ -1,3 +1,5 @@
+technique <- "chi"
+for(technique in c("chi","ig")){
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
 source("functions/chi2.R")
 source("functions/IG.R")
@@ -32,7 +34,7 @@ eml.data.frame.dtm <- as.data.frame(eml.matrix.dtm)
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/eml-chi.rds")
+technique.reduce.dimensionality <- readRDS(paste("results/eml-",technique,".rds",sep=""))
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 eml.dtm.cutoff <- eml.data.frame.dtm[,order[1:2000]]
 
@@ -42,7 +44,6 @@ eml.dtm.cutoff$URLs <- emlDF$URLs
 eml.dtm.cutoff$emoticon <- emlDF$emoticon   
 eml.dtm.cutoff$emoji <- emlDF$emoji
 eml.dtm.cutoff$interjection <- emlDF$interjection
-eml.dtm.cutoff$language <- as.factor(emlDF$language)
 eml.dtm.cutoff$extension <- as.factor(emlDF$extension)
 eml.dtm.cutoff$targetHamSpam <- as.factor(emlDF$target)
 
@@ -89,7 +90,7 @@ def.formula <- as.formula("targetHamSpam~.")
                                   data = eml.train,
                                   method = "svmLinear",
                                   trControl = eml.svm.trControl,
-                                  metric = "Accuracy")
+                                  metric = "Kappa")
   
   cat("Testing SVM EML...\n")
   eml.svm.cf <- caret::confusionMatrix(
@@ -99,7 +100,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished SVM EML...\n")
-  saveRDS(eml.svm.trained, file = "results/eml-tokens-chi-svm-train.rds")
-  saveRDS(eml.svm.cf, file = "results/eml-tokens-chi-svm-test.rds")
+  saveRDS(eml.svm.trained, file = paste("results/eml-tokens-",technique,"-svm-train.rds",sep=""))
+  saveRDS(eml.svm.cf, file = paste("results/eml-tokens-",technique,"-svm-test.rds",sep=""))
 }
-
+}

@@ -1,3 +1,5 @@
+technique <- "chi"
+for(technique in c("chi","ig")){
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
 source("functions/chi2.R")
 source("functions/IG.R")
@@ -31,8 +33,8 @@ ytbid.data.frame.dtm <- as.data.frame(ytbid.matrix.dtm)
 ################################################################################
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
-
-technique.reduce.dimensionality <- readRDS("results/ytbid-ig.rds")
+ytbid.data.frame.dtm <- dplyr::select(ytbid.data.frame.dtm, -targetHamSpam)
+technique.reduce.dimensionality <- readRDS(paste("results/ytbid-",technique,".rds",sep=""))
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 ytbid.dtm.cutoff <- ytbid.data.frame.dtm[,order[1:2000]]
 
@@ -42,7 +44,6 @@ ytbid.dtm.cutoff$URLs <- ytbidDF$URLs
 ytbid.dtm.cutoff$emoticon <- ytbidDF$emoticon   
 ytbid.dtm.cutoff$emoji <- ytbidDF$emoji
 ytbid.dtm.cutoff$interjection <- ytbidDF$interjection
-# ytbid.dtm.cutoff$language <- as.numeric(as.factor(ytbidDF$language))
 ytbid.dtm.cutoff$extension <- as.factor(ytbidDF$extension)
 ytbid.dtm.cutoff$targetHamSpam <- as.factor(ytbidDF$target)
 
@@ -86,7 +87,7 @@ def.formula <- as.formula("targetHamSpam~.")
                                     data = ytbid.train,
                                     method = "nb",
                                     trControl = ytbid.nb.trControl,
-                                    metric = "Accuracy")
+                                    metric = "Kappa")
   
   cat("Testing NB YTBID...\n")
   ytbid.nb.cf <- caret::confusionMatrix(
@@ -96,7 +97,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB YTBID...\n")
-  saveRDS(ytbid.nb.trained, file = "results/ytbid-tokens-ig-nb-train.rds")
-  saveRDS(ytbid.nb.cf, file = "results/ytbid-tokens-ig-nb-test.rds")
+  saveRDS(ytbid.nb.trained, file = paste("results/ytbid-tokens-",technique,"-nb-train.rds",sep=""))
+  saveRDS(ytbid.nb.cf, file = paste("results/ytbid-tokens-",technique,"-nb-test.rds",sep=""))
 }
-
+}

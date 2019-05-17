@@ -92,7 +92,7 @@ def.formula <- as.formula("targetHamSpam~.")
                              data = train,
                              method = "nb",
                              trControl = nb.trControl,
-                             metric = "Accuracy")
+                             metric = "Kappa")
 
   cat("Testing NB ALL...\n")
   nb.cf <- caret::confusionMatrix(

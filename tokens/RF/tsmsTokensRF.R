@@ -1,3 +1,5 @@
+technique <- "chi"
+for(technique in c("chi","ig")){
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
 source("functions/chi2.R")
 source("functions/IG.R")
@@ -32,7 +34,7 @@ tsms.data.frame.dtm <- as.data.frame(tsms.matrix.dtm)
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/tsms-ig.rds")
+technique.reduce.dimensionality <- readRDS(paste("results/tsms-",technique,".rds",sep=""))
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 tsms.dtm.cutoff <- tsms.data.frame.dtm[,order[1:2000]]
 
@@ -42,7 +44,6 @@ tsms.dtm.cutoff$URLs <- tsmsDF$URLs
 tsms.dtm.cutoff$emoticon <- tsmsDF$emoticon   
 tsms.dtm.cutoff$emoji <- tsmsDF$emoji
 tsms.dtm.cutoff$interjection <- tsmsDF$interjection
-tsms.dtm.cutoff$language <- as.factor(tsmsDF$language)
 tsms.dtm.cutoff$extension <- as.factor(tsmsDF$extension)
 tsms.dtm.cutoff$targetHamSpam <- as.factor(tsmsDF$target)
 
@@ -85,7 +86,7 @@ def.formula <- as.formula("targetHamSpam~.")
                                   data = tsms.train,
                                   method = "rf",
                                   trControl = tsms.rf.trControl,
-                                  metric = "Accuracy")
+                                  metric = "Kappa")
   
   cat("Testing Random Forest TSMS...\n")
   tsms.rf.cf <- caret::confusionMatrix(
@@ -95,6 +96,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished Random Forest TSMS...\n")
-  saveRDS( tsms.rf.trained,file = "results/tsms-tokens-ig-rf-train.rds")
-  saveRDS( tsms.rf.cf,file = "results/tsms-tokens-ig-rf-test.rds")
+  saveRDS(tsms.rf.trained, file = paste("results/tsms-tokens-",technique,"-rf-train.rds",sep=""))
+  saveRDS(tsms.rf.cf, file = paste("results/tsms-tokens-",technique,"-rf-test.rds",sep=""))
+}
 }

@@ -97,7 +97,7 @@ def.formula <- as.formula("targetHamSpam~.")
                                   data = tsms.train,
                                   method = model,
                                   trControl = tsms.nb.trControl,
-                                  metric = "Accuracy")
+                                  metric = "Kappa")
   
   cat("Testing ",model, " TSMS...\n")
   tsms.nb.cf <- caret::confusionMatrix(

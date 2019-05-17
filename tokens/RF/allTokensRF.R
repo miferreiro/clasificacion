@@ -1,3 +1,5 @@
+technique <- "chi"
+for(technique in c("chi","ig")){
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
 source("functions/chi2.R")
 source("functions/IG.R")
@@ -38,7 +40,7 @@ saveRDS(ig, file = "results/all-ig.rds")
 ################################################################################
 library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 
-technique.reduce.dimensionality <- readRDS("results/all-chi.rds")
+technique.reduce.dimensionality <- readRDS(paste("results/all-",technique,".rds",sep=""))
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
 dtm.cutoff <- data.frame.dtm[,order[1:2000]]
 
@@ -48,7 +50,6 @@ dtm.cutoff$URLs <- allDF$URLs
 dtm.cutoff$emoticon <- allDF$emoticon
 dtm.cutoff$emoji <- allDF$emoji
 dtm.cutoff$interjection <- allDF$interjection
-dtm.cutoff$language <- as.factor(allDF$language)
 dtm.cutoff$extension <- as.factor(allDF$extension)
 dtm.cutoff$targetHamSpam <- as.factor(allDF$target)
 
@@ -91,7 +92,7 @@ def.formula <- as.formula("targetHamSpam~.")
                              data = train,
                              method = "rf",
                              trControl = rf.trControl,
-                             metric = "Accuracy")
+                             metric = "Kappa")
 
   cat("Testing Random Forest ALL...\n")
   rf.cf <- caret::confusionMatrix(
@@ -101,6 +102,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
 
   cat("Finished Random Forest ALL...\n")
-  saveRDS(rf.trained, file = "results/all-tokens-chi-rf-train.rds")
-  saveRDS(rf.cf, file = "results/all-tokens-chi-rf-test.rds")
+  saveRDS(rf.trained, file = paste("results/all-tokens-",technique,"-rf-train.rds",sep=""))
+  saveRDS(rf.cf, file = paste("results/all-tokens-",technique,"-rf-test.rds",sep=""))
+}
 }
