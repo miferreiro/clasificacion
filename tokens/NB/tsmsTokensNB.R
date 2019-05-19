@@ -44,6 +44,7 @@ tsms.dtm.cutoff$URLs <- tsmsDF$URLs
 tsms.dtm.cutoff$emoticon <- tsmsDF$emoticon   
 tsms.dtm.cutoff$emoji <- tsmsDF$emoji
 tsms.dtm.cutoff$interjection <- tsmsDF$interjection
+tsms.dtm.cutoff$language <- tsmsDF$language
 tsms.dtm.cutoff$extension <- as.factor(tsmsDF$extension)
 tsms.dtm.cutoff$targetHamSpam <- as.factor(tsmsDF$target)
 

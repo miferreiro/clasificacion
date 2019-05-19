@@ -1,10 +1,10 @@
 library(dplyr)
-file = "results/all-chi.rds"
+file = "results/eml-chi.rds"
 chi2 <- readRDS(file = file)
 chi2 <- arrange(chi2,-attr_importance)
-plot(type = "l", density(chi2$attr_importance), xlim=c(0,0.1),main = "All IG", xlab = "importance", ylab = "Density")
+plot(type = "l", density(chi2$attr_importance), xlim=c(0,0.3),main = "Eml Chi square", xlab = "importance", ylab = "Density")
 cut.off.chi2 = 2000
-abline(v = chi2$attr_importance[cut.off.chi2], col = "blue", lty = 2)
+abline(v = chi2$attr_importance[cut.off.chi2], col = "red", lty = 2)
 
 density <- density(chi2$attr_importance)
 min <- min(which(density$x >= chi2$attr_importance[cut.off.chi2]))

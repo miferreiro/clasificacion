@@ -1,7 +1,7 @@
 technique <- "chi"
 method <- "svm"
-for (technique in c("chi","ig")) {
-for (method in c("nb","svmLinear","rf")) {
+for (technique in c("ig")) {
+for (method in c("svmLinear")) {
 library(tm);library(pipeR);library(tokenizers);library(FSelector);library("kernlab");library("caret");library("tidyverse");library("recipes");library("rlist");library("dplyr")
 source("functions/chi2.R")
 source("functions/IG.R")

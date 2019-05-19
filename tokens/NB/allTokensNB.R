@@ -39,7 +39,7 @@ library("kernlab");library("caret");library("tidyverse");library("recipes");libr
 
 technique.reduce.dimensionality <- readRDS("results/all-chi.rds")
 order <- order(technique.reduce.dimensionality, decreasing = TRUE)
-dtm.cutoff <- data.frame.dtm[,order[1:2000]]
+dtm.cutoff <- data.frame.dtm[,order[1:6000]]
 
 rm(order)
 
@@ -49,7 +49,6 @@ dtm.cutoff$URLs <- allDF$URLs
 dtm.cutoff$emoticon <- allDF$emoticon
 dtm.cutoff$emoji <- allDF$emoji
 dtm.cutoff$interjection <- allDF$interjection
-# dtm.cutoff$language <- as.factor(allDF$language)
 dtm.cutoff$extension <- as.factor(allDF$extension)
 dtm.cutoff$targetHamSpam <- as.factor(allDF$target)
 
@@ -102,6 +101,6 @@ def.formula <- as.formula("targetHamSpam~.")
   )
 
   cat("Finished NB ALL...\n")
-  saveRDS(nb.trained, file = "results/all-tokens-nb-train.rds")
-  saveRDS(nb.cf, file = "results/all-tokens-nb-test.rds")
+  # saveRDS(nb.trained, file = "results/all-tokens-nb-train.rds")
+  # saveRDS(nb.cf, file = "results/all-tokens-nb-test.rds")
 }

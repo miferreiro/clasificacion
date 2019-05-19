@@ -1,5 +1,6 @@
 source("functions/draw_confusion_matrix.R")
-typeDimensionality <- "chi"
+typeDimensionality <- "ig"
+# typeDimensionality <- "chi"
 model <- "nb"
 class <- "ytbid"
 file <- paste("results/",class,"-tokens-", typeDimensionality, "-", model, "-test",".rds", sep="")
