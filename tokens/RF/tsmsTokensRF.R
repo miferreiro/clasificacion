@@ -69,9 +69,9 @@ def.formula <- as.formula("targetHamSpam~.")
   tsms.test <-  dataTsms[-indexTsms, ]
   
   tsms.rf.rec <- recipes::recipe(formula = def.formula, data = tsms.train) %>%
-    step_zv(all_predictors()) %>% #remove zero variancer
-    step_nzv(all_predictors()) %>% #remove near-zero variance
-    step_corr(all_predictors()) #remove high correlation filter.
+    step_zv(all_predictors()) #%>% #remove zero variancer
+    # step_nzv(all_predictors()) %>% #remove near-zero variance
+    # step_corr(all_predictors()) #remove high correlation filter.
   
   tsms.rf.trControl <- caret::trainControl(method = "cv", #use cross-validation
                                            number = 10, #divide cross-validation into 10 folds
@@ -96,7 +96,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished Random Forest TSMS...\n")
-  saveRDS(tsms.rf.trained, file = paste("results/tsms-tokens-",technique,"-rf-train.rds",sep=""))
-  saveRDS(tsms.rf.cf, file = paste("results/tsms-tokens-",technique,"-rf-test.rds",sep=""))
+  saveRDS(tsms.rf.trained, file = paste("resultsWithOutSteps/tsms-tokens-",technique,"-rf-train.rds",sep=""))
+  saveRDS(tsms.rf.cf, file = paste("resultsWithOutSteps/tsms-tokens-",technique,"-rf-test.rds",sep=""))
 }
 }

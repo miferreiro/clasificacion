@@ -1,5 +1,5 @@
 technique <- "chi"
-for(technique in c("chi","ig")){
+for(technique in c("ig")){
 library(tm);library(pipeR);library(tokenizers);library(FSelector)
 source("functions/chi2.R")
 source("functions/IG.R")
@@ -70,11 +70,10 @@ def.formula <- as.formula("targetHamSpam~.")
   eml.test <-  dataEml[-indexEml, ]
   rm(dataEml)
   eml.svm.rec <- recipes::recipe(formula = def.formula, data = eml.train) %>%
-    step_zv(all_predictors()) %>% #remove zero variance
-    step_nzv(all_predictors()) %>% #remove near-zero variance
-    step_corr(all_predictors()) %>% #remove high correlation filter.
-    step_center(all_predictors()) %>% #normalize data -> mean of zero (important for SVM and KNN) 
-    step_scale(all_predictors()) #Scale data to have standard deviation of 1 (important for SVM and KNN).
+    step_zv(all_predictors()) #%>% #remove zero variance
+    # step_nzv(all_predictors()) %>% #remove near-zero variance
+    # step_corr(all_predictors()) %>% #remove high correlation filter.
+
   
   eml.svm.trControl <- caret::trainControl(method = "cv", #use cross-validation
                                            number = 10, #divide cross-validation into 10 folds
@@ -100,7 +99,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished SVM EML...\n")
-  saveRDS(eml.svm.trained, file = paste("results/eml-tokens-",technique,"-svm-train.rds",sep=""))
-  saveRDS(eml.svm.cf, file = paste("results/eml-tokens-",technique,"-svm-test.rds",sep=""))
+  saveRDS(eml.svm.trained, file = paste("resultsWithOutSteps/eml-tokens-",technique,"-svm-train.rds",sep=""))
+  saveRDS(eml.svm.cf, file = paste("resultsWithOutSteps/eml-tokens-",technique,"-svm-test.rds",sep=""))
 }
 }

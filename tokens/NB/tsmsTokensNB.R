@@ -44,7 +44,6 @@ tsms.dtm.cutoff$URLs <- tsmsDF$URLs
 tsms.dtm.cutoff$emoticon <- tsmsDF$emoticon   
 tsms.dtm.cutoff$emoji <- tsmsDF$emoji
 tsms.dtm.cutoff$interjection <- tsmsDF$interjection
-tsms.dtm.cutoff$language <- tsmsDF$language
 tsms.dtm.cutoff$extension <- as.factor(tsmsDF$extension)
 tsms.dtm.cutoff$targetHamSpam <- as.factor(tsmsDF$target)
 
@@ -70,9 +69,9 @@ def.formula <- as.formula("targetHamSpam~.")
   tsms.test <-  dataTsms[-indexTsms, ]
   
   tsms.nb.rec <- recipes::recipe(formula = def.formula, data = tsms.train) %>%
-    step_zv(all_predictors()) %>% #remove zero variance
-    step_nzv(all_predictors()) %>% #remove near-zero variance
-    step_corr(all_predictors()) #remove high correlation filter.
+    step_zv(all_predictors()) # %>% #remove zero variance
+    # step_nzv(all_predictors()) %>% #remove near-zero variance
+    # step_corr(all_predictors()) #remove high correlation filter.
   
   tsms.nb.trControl <- caret::trainControl(method = "cv", #use cross-validation
                                            number = 10, #divide cross-validation into 10 folds
@@ -98,8 +97,8 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB TSMS...\n")
-  saveRDS(tsms.nb.trained, file = paste("results/tsms-tokens-",technique,"-nb-train.rds",sep=""))
-  saveRDS(tsms.nb.cf, file = paste("results/tsms-tokens-",technique,"-nb-test.rds",sep=""))
+  saveRDS(tsms.nb.trained, file = paste("resultsWithOutSteps/tsms-tokens-",technique,"-nb-train.rds",sep=""))
+  saveRDS(tsms.nb.cf, file = paste("resultsWithOutSteps/tsms-tokens-",technique,"-nb-test.rds",sep=""))
 }
 }
 

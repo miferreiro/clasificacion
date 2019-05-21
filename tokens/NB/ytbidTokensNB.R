@@ -97,7 +97,7 @@ def.formula <- as.formula("targetHamSpam~.")
   )
   
   cat("Finished NB YTBID...\n")
-  saveRDS(ytbid.nb.trained, file = paste("results/ytbid-tokens-",technique,"-nb-train.rds",sep=""))
-  saveRDS(ytbid.nb.cf, file = paste("results/ytbid-tokens-",technique,"-nb-test.rds",sep=""))
+  saveRDS(ytbid.nb.trained, file = paste("resultsWithOutSteps/ytbid-tokens-",technique,"-nb-train.rds",sep=""))
+  saveRDS(ytbid.nb.cf, file = paste("resultsWithOutSteps/ytbid-tokens-",technique,"-nb-test.rds",sep=""))
 }
 }

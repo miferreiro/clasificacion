@@ -193,21 +193,21 @@ train$interjection <- as.numeric(train$interjection)
 test$interjection <- as.numeric(test$interjection)
 
 rec <- recipes::recipe(formula = def.formula, data = train) %>%
-  step_zv(all_predictors()) %>% #remove zero variance
-  step_nzv(all_predictors()) %>% #remove near-zero variance
-  step_corr(all_predictors()) #remove high correlation filter.
+  step_zv(all_predictors()) #  %>% #remove zero variance
+#  step_nzv(all_predictors()) %>% #remove near-zero variance
+#  step_corr(all_predictors()) #remove high correlation filter.
 
 trControl <- caret::trainControl(method = "cv", #use cross-validation
                                  number = 10, #divide cross-validation into 10 folds
                                  search = "random", #"grid"
                                  savePredictions = "final", #save predictions of best model.
-                                 classProbs = TRUE, #save probabilities obtained for the best model.
+#                                 classProbs = TRUE, #save probabilities obtained for the best model.
                                  summaryFunction = defaultSummary, #use defaultSummary function (only computes Accuracy and Kappa values)
                                  allowParallel = TRUE, #execute in parallel.
                                  seeds = set.seed(100)
 )
 cat("Training ",method," ALL...\n")
-trained <- caret::train(rec,
+trained2 <- caret::train(rec,
                         data = train,
                         method = method,
                         trControl = trControl,
@@ -215,15 +215,15 @@ trained <- caret::train(rec,
 
 cat("Testing ",method," ALL...\n")
 cf <- caret::confusionMatrix(
-  predict(trained, newdata = test, type = "raw"),
+  predict(trained2, newdata = test, type = "raw"),
   reference = test$targetHamSpam,
   positive = "spam"
 )
 
 cat("Finished ",method," ALL...\n")
-saveRDS(trained, file = paste("results/all-tokens-",technique,"-",method,"-train.rds",sep=""))
-saveRDS(cf, file = paste("results/all-tokens-",technique,"-",method,"-test.rds",sep=""))
+saveRDS(trained2, file = paste("resultsWithOutSteps/all-tokens-",technique,"-",method,"-train.rds",sep=""))
+saveRDS(cf, file = paste("resultsWithOutSteps/all-tokens-",technique,"-",method,"-test.rds",sep=""))
 
 }
 }
-for(i in names(train)){if(!is.numeric(train[,i])){cat(i," ",class(train[,i]),"\n")}}
+# for(i in names(train)){if(!is.numeric(train[,i])){cat(i," ",class(train[,i]),"\n")}}
